@@ -1,57 +1,93 @@
+<div align="center">
+
 # Startup Scouting AI
 
-An automated tool for scouting European startup accelerators and their portfolio startups using Google Sheets, Apps Script, and OpenAI API. Features self-correcting URL verification, relationship proof tracking, and source citations.
+![IMG_6497](https://github.com/user-attachments/assets/0d74db53-1d09-4390-83b8-1fe0aa63cebd)
 
-## Live Demo
 
-**Google Sheet:** [Startup Scouting AI - Live Data](https://docs.google.com/spreadsheets/d/1inBbXRV6wvGEU6k5n6DvGHsVW7GhkcGL_4weanKSOHk/edit?usp=sharing)
+An automated tool that finds European startup accelerators and their portfolio companies using Google Sheets and AI. It verifies all data, tracks relationships between accelerators and startups, and generates value propositions with source citations.
 
-**GitHub Repository:** [github.com/kimia1999/startup-scouting-ai](https://github.com/kimia1999/startup-scouting-ai)
+---
+
+**[Live Google Sheet](https://docs.google.com/spreadsheets/d/1inBbXRV6wvGEU6k5n6DvGHsVW7GhkcGL_4weanKSOHk/edit?usp=sharing)** · **[GitHub Repository](https://github.com/kimia1999/startup-scouting-ai)**
+
+</div>
+
+---
 
 ## Features
 
-### Core Features
-- **Scout Accelerators:** Discovers European startup accelerators using AI with two-step verification
-- **Find Startups:** Extracts portfolio startups from each accelerator with proof of relationship
-- **Generate Value Propositions:** Creates standardized value propositions with source citations
-- **URL Verification:** Validates all discovered URLs are reachable
-- **Self-Correction:** Automatically attempts to find correct URLs when initial ones fail
+### Core Functions
+- **Scout European Accelerators** - Finds accelerators based in Europe using a two step verification process
+- **Find Startups (Two Methods)**
+  - *AI Knowledge* - Uses AI to find startups from its training data
+  - *Web Scraping* - Actually visits accelerator portfolio pages and extracts startup information
+- **Generate Value Propositions** - Creates descriptions in the format: "Startup X helps Y do Z so that W"
 
-### Data Quality Features
-- **Duplicate Prevention:** Uses URL normalization and name matching to prevent duplicates
-- **Relationship Proof:** Documents how each startup is connected to its accelerator
-- **Value Source:** Explains what information was used to generate each value proposition
-- **Resume Capability:** Functions can be re-run after timeout and will continue where they left off
+### Smart Verification
+- **URL Validation** - Checks if every URL actually works
+- **Self-Correction** - When a URL fails, automatically searches for the correct one
+- **URL Variations** - Tries different domain patterns (company.com, company.io, company.ai, etc.)
+
+### Data Quality
+- **European Filter** - Only includes startups headquartered in European countries
+- **Duplicate Prevention** - Checks both URLs and company names to avoid duplicates
+- **Relationship Proof** - Records how each startup is connected to its accelerator
+- **Value Source** - Explains what information was used to generate each value proposition
+
+### Reliability
+- **Resume After Timeout** - If Google's 6 minute limit hits just run again and it continues where it left off
+- **Error Handling** - Skips problematic entries and continues processing
+- **Detailed Logging** - Records every step for debugging
+
+---
+
+## Data Quality Measures
+
+We implemented several checks to ensure the data is accurate and useful:
+
+| Check | What It Does |
+|-------|--------------|
+| URL Verification | Every URL is tested to confirm it actually loads |
+| Self-Correction | Failed URLs trigger an automatic search for the correct one |
+| European Validation | Non European startups are filtered out |
+| Duplicate Detection | Prevents same company from being added twice |
+| Proof Tracking | Records evidence for accelerator startup relationships |
+| Source Citations | Documents the basis for each value proposition |
+
+---
 
 ## Sheet Structure
 
 ### accelerators
-| Column | Field | Description |
-|--------|-------|-------------|
-| A | website | Accelerator URL (primary key) |
-| B | name | Accelerator name |
-| C | country | Country of operation |
-| D | verified | URL validation status (YES/NO) |
-| E | source | How URL was obtained (AI generated / AI corrected) |
+| Column | Description |
+|--------|-------------|
+| website | Accelerator URL (unique identifier) |
+| name | Accelerator name |
+| country | Country (European only) |
+| verified | YES/NO - URL works? |
+| source | How we found this (AI generated / AI corrected) |
 
 ### startups
-| Column | Field | Description |
-|--------|-------|-------------|
-| A | website | Startup URL (primary key) |
-| B | name | Startup name |
-| C | country | Country of origin |
-| D | accelerator | Reference to accelerator URL |
-| E | value_proposition | Generated value proposition |
-| F | verified | URL validation status (YES/NO) |
-| G | relationship_proof | Evidence of accelerator-startup connection |
-| H | value_source | Information source for value proposition |
+| Column | Description |
+|--------|-------------|
+| website | Startup URL (unique identifier) |
+| name | Startup name |
+| country | Country (European only) |
+| accelerator | Link to accelerator URL |
+| value_proposition | Generated description |
+| verified | YES/NO - URL works? |
+| relationship_proof | Evidence of connection to accelerator |
+| value_source | Basis for the value proposition |
+
+---
 
 ## Setup Instructions
 
-### Prerequisites
+### What You Need
 - Google Account
 - OpenAI API Key ([Get one here](https://platform.openai.com/api-keys))
-- Node.js (for clasp)
+- Node.js installed ([Download here](https://nodejs.org))
 
 ### Step 1: Clone the Repository
 
@@ -60,7 +96,7 @@ git clone https://github.com/kimia1999/startup-scouting-ai.git
 cd startup-scouting-ai
 ```
 
-### Step 2: Install and Setup clasp
+### Step 2: Install clasp
 
 ```bash
 npm install -g @google/clasp
@@ -69,148 +105,252 @@ clasp login
 
 Enable Apps Script API at: https://script.google.com/home/usersettings
 
-### Step 3: Create Google Sheet
+### Step 3: Set Up Google Sheet
 
+**Option A: Use the template (Recommended)**
+1. Download the blank template: [startup-scouting-template.xlsx](link-to-template)
+2. Upload to Google Drive
+3. Open with Google Sheets
+
+**Option B: Create manually**
 1. Create a new Google Sheet
-2. Create two tabs: `accelerators` and `startups`
-3. Add headers as shown in Sheet Structure above
+2. Create tab `accelerators` with headers: `website | name | country | verified | source`
+3. Create tab `startups` with headers: `website | name | country | accelerator | value_proposition | verified | relationship_proof | value_source`
 
-### Step 4: Deploy Code to Apps Script
+### Step 4: Deploy Code
 
-Option A - Clone existing project:
-```bash
-clasp clone <SCRIPT_ID>
-```
-
-Option B - Create new project:
-```bash
-clasp create --type sheets --title "Startup Scouting AI"
-clasp push
-```
+1. In your Google Sheet, go to **Extensions → Apps Script**
+2. Delete any default code
+3. Copy all content from `Code.js` in this repository
+4. Paste into the Apps Script editor
+5. Save (Ctrl+S)
 
 ### Step 5: Configure API Key
 
-1. In Google Sheet, go to Extensions → Apps Script
-2. Click Project Settings (gear icon)
-3. Scroll to "Script Properties"
-4. Add property:
-   - Name: `OPENAI_API_KEY`
-   - Value: Your OpenAI API key
+1. In Apps Script, click **Project Settings** (gear icon)
+2. Scroll to **Script Properties**
+3. Click **Add script property**
+4. Name: `OPENAI_API_KEY`
+5. Value: Your OpenAI API key
+6. Click **Save**
 
 ### Step 6: Run the Tool
 
-1. Refresh the Google Sheet
-2. New menu appears: "Startup Scouting AI"
-3. Run functions in order:
-   - **1-Scout Accelerators**
-   - **2-Update Startups from Accelerators**
-   - **3-Generate Value Propositions**
-   - **4-Verify Accelerators** (optional re-verification)
-   - **5-Verify Startups** (optional re-verification)
+1. Go back to your Google Sheet
+2. Refresh the page
+3. New menu appears: **Startup Scouting AI**
+4. Run in order:
+   - `1-Scout Accelerators (Europe)`
+   - `2a-Find Startups (AI Knowledge)` or `2b-Find Startups (Web Scraping)`
+   - `3-Generate Value Propositions`
+
+---
 
 ## How It Works
 
-### 1. Scout Accelerators (Two-Step Process)
+### 1. Scout Accelerators (Europe)
 
 ```
-Step 1: Ask AI for accelerator NAMES only
+Ask AI for European accelerator NAMES
         ↓
-Step 2: For each name:
-        → Ask AI for website and country
-        → Verify URL is reachable
-        → If URL fails → Try to find correct URL
-        → If still fails → Try URL variations (name.com, name.io, name.ventures, etc.)
-        → Save with verification status and source
+For each name, ask AI for website and country
+        ↓
+Verify URL works
+        ↓
+If URL fails → Try to find correct URL
+        ↓
+If still fails → Try URL variations (name.com, name.io, etc.)
+        ↓
+Save with verification status and source
 ```
 
-### 2. Update Startups (With Proof)
+### 2a. Find Startups (AI Knowledge)
 
 ```
-For each VERIFIED accelerator:
+For each verified accelerator:
         ↓
-Ask AI for startups WITH proof of relationship
+Ask AI for European startups with proof of relationship
         ↓
-For each startup:
-        → Verify URL is reachable
-        → If URL fails → Try to find correct URL
-        → Save with verification status and relationship proof
+Verify each startup URL
         ↓
-Skip accelerators already processed (resume capability)
+If URL fails → Search for correct URL
+        ↓
+Validate country is European
+        ↓
+Save with proof and verification status
 ```
 
-### 3. Generate Value Propositions (With Source)
+### 2b. Find Startups (Web Scraping)
 
 ```
-For each VERIFIED startup without value proposition:
+For each verified accelerator:
         ↓
-Ask AI to generate value proposition AND explain source
+Find portfolio page URL (try common patterns like /portfolio, /companies)
+        ↓
+Fetch the HTML content
+        ↓
+Use AI to extract startup names and websites from HTML
+        ↓
+If HTML parsing fails → Fall back to AI knowledge
+        ↓
+Verify URLs and validate European country
+        ↓
+Save with source: "Scraped from [portfolio URL]"
+```
+
+### 3. Generate Value Propositions
+
+```
+For each verified startup without value proposition:
+        ↓
+Ask AI to generate description with source citation
         ↓
 Format: "[Name] helps [target] do [what] so that [benefit]"
         ↓
-Save value proposition and source citation
+Save value proposition and source explanation
 ```
+
+---
 
 ## Architecture
 
 ### Helper Functions
 | Function | Purpose |
 |----------|---------|
-| `getApiKey()` | Retrieves API key from secure storage |
-| `callOpenAI()` | Makes requests to OpenAI API |
+| `getApiKey()` | Gets API key from secure storage |
+| `callOpenAI()` | Sends requests to OpenAI API |
 | `normalizeUrl()` | Standardizes URLs (lowercase, no trailing slash) |
-| `cleanJsonResponse()` | Removes markdown formatting from AI responses |
-| `getExistingWebsites()` | Returns Set of URLs already in sheet |
-| `getExistingNames()` | Returns Set of names already in sheet |
-| `getProcessedAccelerators()` | Returns Set of accelerators that have startups |
-| `isUrlReachable()` | Checks if URL returns valid HTTP response |
-| `findCorrectUrl()` | Attempts to find correct URL when first fails |
-| `generateUrlVariations()` | Generates URL patterns to try |
+| `cleanJsonResponse()` | Removes markdown from AI responses |
+| `isUrlReachable()` | Tests if URL returns valid response |
+| `findCorrectUrl()` | Searches for correct URL when original fails |
+| `generateUrlVariations()` | Creates URL patterns to try |
+| `isEuropeanCountry()` | Validates country is in Europe |
+| `getStartupCountry()` | Asks AI for startup's country |
+| `fetchWebsiteContent()` | Downloads webpage HTML |
+| `findPortfolioPageUrl()` | Finds accelerator's portfolio page |
+| `extractStartupsFromWebpage()` | Parses HTML to find startups |
 
 ### Main Functions
-| Function | Menu Item | Purpose |
-|----------|-----------|---------|
-| `scoutAccelerators()` | 1-Scout Accelerators | Find and verify accelerators |
-| `updateStartups()` | 2-Update Startups | Find startups with proof |
-| `generateValuePropositions()` | 3-Generate Value Propositions | Create value props with source |
-| `verifyAccelerators()` | 4-Verify Accelerators | Re-verify accelerator URLs |
-| `verifyStartups()` | 5-Verify Startups | Re-verify startup URLs |
+| Function | Menu Item |
+|----------|-----------|
+| `scoutAccelerators()` | 1-Scout Accelerators (Europe) |
+| `updateStartupsAI()` | 2a-Find Startups (AI Knowledge) |
+| `updateStartupsWebScrape()` | 2b-Find Startups (Web Scraping) |
+| `generateValuePropositions()` | 3-Generate Value Propositions |
+
+---
 
 ## Challenges and Solutions
 
 ### Challenge 1: AI Hallucination
-**Problem:** AI generated fake or incorrect URLs
-**Solution:** URL verification with `isUrlReachable()` function
+
+**The Problem**
+
+AI sometimes generates fake or incorrect URLs. For example, it gave `norwayinnovate.com` instead of the correct `innovasjonnorge.no`.
+
+**What We Did**
+
+- Added URL verification that checks if every URL actually loads
+- Created a self correction system that asks AI for the correct URL when one fails
+- Built a URL variation generator that tries different patterns (name.com, name.io, name.ai, etc.)
+
+---
 
 ### Challenge 2: Execution Timeout
-**Problem:** Google Apps Script has 6-minute execution limit
-**Solution:** Skip already-processed rows, allowing resume after timeout
 
-### Challenge 3: Invalid URLs Need Fixing
-**Problem:** When URL verification fails, data was just marked "NO"
-**Solution:** Self-correction system with `findCorrectUrl()` that asks AI for correct URL
+**The Problem**
 
-### Challenge 4: URL Format Variations
-**Problem:** AI gave `nexgenventures.com` but correct was `nexgen.ventures`
-**Solution:** `generateUrlVariations()` tries multiple URL patterns
+Google Apps Script stops after 6 minutes. With many accelerators and startups, the process couldn't finish.
 
-### Challenge 5: No Proof of Data
-**Problem:** No way to verify AI's claims about relationships
-**Solution:** Require AI to provide proof/source for all generated content
+**What We Did**
 
-### Challenge 6: False Negatives in URL Checking
-**Problem:** Some real sites (Coinbase, Crowdcube) blocked script requests
-**Solution:** Added User-Agent header, accept 403 responses as valid
+- Added tracking of already processed items
+- Functions now skip completed work and continue from where they stopped
+- Users can simply run the function again to continue
+
+---
+
+### Challenge 3: Wrong URL Formats
+
+**The Problem**
+
+AI gave `nexgenventures.com` but the correct URL was `nexgen.ventures` (different domain format).
+
+**What We Did**
+
+- Built `generateUrlVariations()` that tries multiple domain patterns
+- Tries: .com, .co, .io, .org, .ai, and special formats like name.ventures
+
+---
+
+### Challenge 4: No Proof of Relationships
+
+**The Problem**
+
+AI claimed startups belonged to accelerators, but provided no evidence.
+
+**What We Did**
+
+- Updated prompts to require proof (e.g., "Listed on portfolio page 2023")
+- Added `relationship_proof` column to track evidence
+- Web scraping method records the exact URL where startup was found
+
+---
+
+### Challenge 5: Non European Results
+
+**The Problem**
+
+Some accelerators are global, so AI returned startups from USA, Africa, Asia.
+
+**What We Did**
+
+- Created list of European countries for validation
+- Added `isEuropeanCountry()` check
+- When country is unknown, asks AI to find it
+- Filters out non European startups
+
+---
+
+### Challenge 6: Portfolio Pages Hard to Find
+
+**The Problem**
+
+Every accelerator website uses different URLs for their portfolio (/portfolio, /companies, /our-startups, etc.).
+
+**What We Did**
+
+- Built `findPortfolioPageUrl()` that tries 15+ common URL patterns
+- Falls back to asking AI if patterns don't work
+- Validates each URL before using it
+
+---
+
+### Challenge 7: Websites Blocking Requests
+
+**The Problem**
+
+Some websites returned errors for automated requests but worked in browsers.
+
+**What We Did**
+
+- Added browser like User Agent header
+- Accept more response codes (403 means site exists but blocks scripts)
+- Improved error handling to continue despite failures
+
+---
 
 ## Version History
 
 ### v0.2.0 (Current)
-- Two-step accelerator scouting with verification
-- Self-correcting URL system
+- Two step accelerator scouting with verification
+- Two methods for finding startups (AI + Web Scraping)
+- Self correcting URL system
 - URL variation generator
-- Relationship proof for startups
-- Value proposition source citations
-- Resume capability for all functions
-- Improved URL checking (handles 403 responses)
+- European country validation
+- Relationship proof tracking
+- Value proposition with source citations
+- Resume capability after timeout
 
 ### v0.1.0
 - Basic accelerator scouting
@@ -218,49 +358,59 @@ Save value proposition and source citation
 - Basic value proposition generation
 - Simple URL verification
 
+---
+
 ## Known Limitations
 
-### AI Limitations
-- OpenAI may still generate incorrect information despite verification
-- Relationship proofs are AI-generated and may not be verifiable
-- Value propositions are based on AI's knowledge, not live website scraping
+### AI Accuracy
+- AI may still generate incorrect information despite verification
+- Relationship proofs are AI generated and may not be verifiable
+- Some startups may be outdated (company no longer active)
 
-### Technical Limitations
-- 6-minute execution limit per function (mitigated with resume capability)
-- Some websites block all automated requests (even with User-Agent)
-- URL variations cannot cover all possible domain formats
+### Technical Limits
+- 6 minute execution limit per function (mitigated with resume capability)
+- Some websites block all automated requests
+- JavaScript rendered pages may not scrape properly
 
 ### Data Quality
-- Duplicate detection based on URL and name may miss variations
-- Country information depends on AI accuracy
-- No real-time verification against accelerator portfolio pages
+- Country detection depends on AI accuracy
+- Some URLs may be correct but point to different company with same name
+- Value propositions are based on AI knowledge, not live website content
+
+---
 
 ## Future Improvements
 
-- [ ] Web scraping of accelerator portfolio pages for verification
-- [ ] Integration with Crunchbase or PitchBook API for cross-reference
-- [ ] Batch processing with time-based checkpoints
-- [ ] Human verification workflow with approval flags
-- [ ] Automatic retry queue for failed URLs
+- [ ] Verify startup is still active (check recent blog posts, social media)
+- [ ] Check copyright year on website footer for activity
+- [ ] Integration with Crunchbase API for company verification
+- [ ] Web scraping of actual startup websites for value propositions
+- [ ] Batch processing with checkpoints
 - [ ] Dashboard for data quality metrics
+- [ ] Export to other formats (CSV, JSON)
+
+---
 
 ## Technical Details
 
 ### Technologies
-- Google Sheets (data storage and UI)
+- Google Sheets (data storage and interface)
 - Google Apps Script (backend logic)
-- OpenAI API - GPT-4o-mini (AI generation)
+- OpenAI API - GPT-4o-mini (AI processing)
 - clasp (deployment and version control)
 
 ### API Configuration
-- Model: `gpt-4o-mini`
-- Max tokens: 1000
-- Temperature: 0.7
+```javascript
+model: 'gpt-4o-mini'
+max_tokens: 1000
+temperature: 0.7
+```
 
 ### Rate Limiting
-- 500-1000ms delay between API calls
+- 500-2000ms delay between API calls
 - Prevents hitting OpenAI rate limits
-- Allows URL verification time
+
+---
 
 ## Repository Structure
 
@@ -269,10 +419,15 @@ startup-scouting-ai/
 ├── .clasp.json          # clasp configuration
 ├── appsscript.json      # Apps Script manifest
 ├── Code.js              # Main application code
-└── README.md            # Documentation
+└── README.md            # This file
 ```
+
+---
 
 ## Author
 
 **Kimia Bahrami**
+
 - GitHub: [kimia1999](https://github.com/kimia1999)
+- Email: kimiabahrami1999@gmail.com
+
