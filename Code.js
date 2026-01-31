@@ -20,7 +20,7 @@ function onOpen() {
   
   menu.addToUi();
 }
-``
+
 
 
 // here is for having the European countries name so we can check with our results 
@@ -932,7 +932,7 @@ function updateStartupsAI() {
 //function for finding startups by scraping accelerator websites
 function updateStartupsWebScrape() {
 
-  SpreadsheetApp.getUi().alert('Finding startups by scraping accelerator websites. PLEASE WAITE');
+  SpreadsheetApp.getUi().alert('Finding startups by scraping accelerator websites. PLEASE WAIT');
 
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   var acceleratorsSheet = spreadsheet.getSheetByName('accelerators');
