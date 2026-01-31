@@ -107,8 +107,8 @@ Enable Apps Script API at: https://script.google.com/home/usersettings
 
 ### Step 3: Set Up Google Sheet
 
-**Option A: Use the template (Recommended)**
-1. Download the blank template: [startup-scouting-template.xlsx](link-to-template)
+**Option A: Use the template **
+1. Download the blank template: https://docs.google.com/spreadsheets/d/1m9cYkjvVbHiFtgVTW610Th_CXao1bUxPTbOXkLOaVlA/edit?usp=sharing
 2. Upload to Google Drive
 3. Open with Google Sheets
 
